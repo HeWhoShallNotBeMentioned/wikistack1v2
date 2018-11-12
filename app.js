@@ -21,7 +21,7 @@ models.db.authenticate().then(() => {
 });
 
 const PORT = 8080;
-
+//sync needs to be wrapped in a function to be called to make sync happen.
 const init = async () => {
   await models.db.sync({ force: false });
 

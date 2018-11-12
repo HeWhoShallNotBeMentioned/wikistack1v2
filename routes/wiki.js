@@ -43,6 +43,10 @@ router.get('/:slug', async (req, res, next) => {
         slug: req.params.slug,
       },
     });
+    if(page === null) {
+      res.sendStatus(404);
+    }
+
     const author = await page.getAuthor();
     //console.log('page ', page);
     res.send(wikiPage(page, author));
