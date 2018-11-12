@@ -1,5 +1,4 @@
 const express = require('express');
-const { layout } = require('./views/');
 const models = require('./models');
 const volleyball = require('volleyball');
 const wikiRouter = require('./routes/wiki');
@@ -11,7 +10,7 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/wiki', wikiRouter);
-//app.use('/user', userRouter);
+app.use('/users', userRouter);
 
 app.get('/', (req, res, next) => {
   res.redirect('/wiki');
@@ -24,7 +23,7 @@ models.db.authenticate().then(() => {
 const PORT = 8080;
 
 const init = async () => {
-  await models.db.sync({ force: true });
+  await models.db.sync({ force: false });
 
   app.listen(PORT, () => {
     console.log(`App listening on port ${PORT}`);
