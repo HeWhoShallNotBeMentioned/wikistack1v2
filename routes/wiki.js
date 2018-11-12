@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { Page, User } = require('../models');
-const { addPage, wikiPage, main } = require('../views');
+const { addPage, wikiPage, main, editPage } = require('../views');
 
 router.get('/', async (req, res, next) => {
   const pages = await Page.findAll();
@@ -43,13 +43,56 @@ router.get('/:slug', async (req, res, next) => {
         slug: req.params.slug,
       },
     });
-    if(page === null) {
+    if (page === null) {
       res.sendStatus(404);
     }
 
     const author = await page.getAuthor();
     //console.log('page ', page);
     res.send(wikiPage(page, author));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/:slug', async (req, res, next) => {
+  try {
+    const [updatedRowCount, updatedPages] = await Page.update(req.body, {
+      where: {
+        slug: req.params.slug,
+      },
+      returning: true,
+    });
+    res.redirect(`/wiki/${updatedPages[0].slug}`);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:slug/delete', async (req, res, next) => {
+  try {
+    await Page.destroy({
+      where: {
+        slug: req.params.slug,
+      },
+    });
+    res.redirect('/wiki');
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:slug/edit', async (req, res, next) => {
+  try {
+    const page = await Page.findOne({
+      where: { slug: req.params.slug },
+    });
+    if (page === null) {
+      res.sendStatus(404);
+    } else {
+      const author = await page.getAuthor();
+      res.send(editPage(page, author));
+    }
   } catch (error) {
     next(error);
   }
